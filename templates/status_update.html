@@ -1,5 +1,138 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Erfassen {% endblock %}</h1>
+
+
+
+    <div class="container">
+        <form method="post" class="row g-2">
+            <div class="mb-6">
+                <h3>{% block title %} Status Update{% endblock %}</h3>
+            </div>
+
+            <div class="col-md-6">
+                {% for objekt in inventar_infos %}
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    <h4>{{ objekt['bezeichnung'] }} Nr. {{ objekt['id'] }}</h4>
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                                 data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+
+                                    {% if objekt['feld_1_bez'] %}
+                                        <div class="row">
+                                            <div class="col-6">{{ objekt['feld_1_bez'] }}:</div>
+                                            <div class="col-6">{{ objekt['feld_1'] }}</div>
+                                        </div>
+                                    {% endif %}
+                                    {% if objekt['feld_2_bez'] %}
+                                        <div class="row">
+                                            <div class="col-6">{{ objekt['feld_2_bez'] }}:</div>
+                                            <div class="col-6">{{ objekt['feld_2'] }}</div>
+                                        </div>
+                                    {% endif %}
+                                    {% if objekt['feld_3_bez'] %}
+                                        <div class="row">
+                                            <div class="col-6">{{ objekt['feld_3_bez'] }}:</div>
+                                            <div class="col-6">{{ objekt['feld_3'] }}</div>
+                                        </div>
+                                    {% endif %}
+                                    {% if objekt['feld_4_bez'] %}
+                                        <div class="row">
+                                            <div class="col-6">{{ objekt['feld_4_bez'] }}:</div>
+                                            <div class="col-6">{{ objekt['feld_4'] }}</div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if status_info['id'] > 0 %}
+                                        <div class="row">
+                                            <div class="col-6">verwendet von:</div>
+                                            <div class="col-6">{{ status_info['vorname'] }} {{ status_info['name'] }}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">seit:</div>
+                                            <div class="col-6">{{ status_info['erstellt'] }}</div>
+                                        </div>
+                                    {% else %}
+                                        <div class="row">
+                                            <div class="col-6">kein Statuseintrag gefunden</div>
+                                            <div class="col-6"></div>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-6">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <select name="halle" class="form-select" id="halle"
+                                aria-label="Floating label select example">
+                            <option value="1" selected>Halle 1</option>
+                            <option value="2">Halle 2</option>
+                            <option value="3">Halle 3</option>
+                            <option value="4">Halle 4</option>
+                        </select>
+                        <label for="floatingSelect">Halle</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <select name="ebene" class="form-select" id="geschoss"
+                                aria-label="Floating label select example">
+                            <option value="0" selected>nicht definiert</option>
+                            <option value="1">EG</option>
+                            <option value="2">MG</option>
+                            <option value="3">HG</option>
+                            <option value="4">1.OG</option>
+                            <option value="5">2.OG</option>
+                            <option value="6">3.OG</option>
+                        </select>
+                        <label for="geschoss">Ebene</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <div class="col-md-6">
+                    <div class="form-floating">
+
+                        <input name=feld type="text" class="form-control" id="feld" placeholder="EG F120">
+                        <label for="feld">Feld</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <div class="col-md-6">
+                    <div class="form-floating">
+
+                        <input name=bemerkung type="text" class="form-control" id="bemerkung"
+                               placeholder="Auf Bühne">
+                        <label for="feld">Bemerkung</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <div class="d-grid gap-4 col-6 ">
+                    <button type="submit" class="btn btn-primary btn-lg">Status aktualisieren</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
 {% endblock %}
