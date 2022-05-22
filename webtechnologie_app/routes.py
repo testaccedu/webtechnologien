@@ -1,10 +1,12 @@
+from webtechnologie_app import app
+from webtechnologie_app import db
 import sqlite3
-from flask import Flask, render_template, request, url_for, flash, redirect
-from werkzeug.exceptions import abort
+from flask import render_template, request, url_for, flash, redirect
+from webtechnologie_app.models import Mitarbeiter, Hallen
 
 
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('webtechnologie_app/database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -40,20 +42,26 @@ def get_status_infos(id):
     return status
 
 
-app = Flask(__name__)
-app.debug = True
-app.secret_key = 'development key'
-app.config['SECRET_KEY'] = 'your secret key'
-
-
 @app.route('/')
 def index():
+
+    user = Mitarbeiter(vorname="fragezeichen" , name="annabell")
+    db.session.add(user)
+    db.session.commit()
+    user = Mitarbeiter.query.filter_by(name="Neurath").first()
+    print(Mitarbeiter.query.get(2))
+    print(Mitarbeiter.query.all())
     return render_template('index.html')
 
 
 @app.route('/erfassen')
 def erfassen():
     return render_template('erfassen.html')
+
+
+@app.route('/registrieren')
+def registrieren():
+    return render_template('registrieren.html')
 
 
 @app.route('/anzeigen')
@@ -102,5 +110,3 @@ def status_update():
                            status_info=get_status_infos(id))
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5005')
