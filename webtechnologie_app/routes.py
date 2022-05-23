@@ -2,7 +2,9 @@ from webtechnologie_app import app
 from webtechnologie_app import db
 import sqlite3
 from flask import render_template, request, url_for, flash, redirect
+from flask_login import login_user,logout_user, login_required, current_user
 from webtechnologie_app.models import Mitarbeiter, Hallen
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def get_db_connection():
@@ -44,13 +46,6 @@ def get_status_infos(id):
 
 @app.route('/')
 def index():
-
-    user = Mitarbeiter(vorname="fragezeichen" , name="annabell")
-    db.session.add(user)
-    db.session.commit()
-    user = Mitarbeiter.query.filter_by(name="Neurath").first()
-    print(Mitarbeiter.query.get(2))
-    print(Mitarbeiter.query.all())
     return render_template('index.html')
 
 
@@ -59,12 +54,58 @@ def erfassen():
     return render_template('erfassen.html')
 
 
-@app.route('/registrieren')
+@app.route("/registrieren", methods=('GET', 'POST'))
 def registrieren():
+    if request.method == 'POST':
+        vorname = request.form['vorname']
+        name = request.form['name']
+        passwort = request.form['passwort']
+        user = Mitarbeiter.query.filter_by(name=name,
+                                           vorname=vorname).first()  # if this returns a user, then the email already exists in database
+        if user:  # if a user is found, we want to redirect back to signup page so user can try again
+            flash('Email address already exists')
+            return redirect(url_for('registrieren'))
+
+        neuer_benutzer = Mitarbeiter(vorname=vorname, name=name,
+                                     passwort=generate_password_hash(passwort, method='sha256'))
+        db.session.add(neuer_benutzer)
+        db.session.commit()
+        print(vorname + name + passwort)
     return render_template('registrieren.html')
 
 
+@app.route('/login', methods=('GET', 'POST'))
+def login():
+    if request.method == 'POST':
+        nutzer = request.form.get('nutzer')
+        formpasswort = request.form.get('passwort')
+        vorname = str(nutzer).split(".")[0]
+        name = str(nutzer).split(".")[1]
+        # remember = True if request.form.get('remember') else False
+
+        nutzer = Mitarbeiter.query.filter_by(name=name, vorname=vorname).first()
+        print(nutzer)
+
+        # check if the user actually exists
+        # take the user-supplied password, hash it, and compare it to the hashed password in the database
+        if not nutzer or not check_password_hash(nutzer.passwort, formpasswort):
+            flash('Please check your login details and try again.')
+            return redirect(url_for('login'))  # if the user doesn't exist or password is wrong, reload the page
+        login_user(nutzer, remember=1)
+        return redirect(url_for('index'))
+        # if the above check passes, then we know the user has the right credentials
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
 @app.route('/anzeigen')
+@login_required
 def anzeigen():
     conn = get_db_connection()
     inventar = conn.execute('SELECT '
@@ -79,6 +120,7 @@ def anzeigen():
                             'LEFT JOIN hallen on inventar_status.standort_halle_id = hallen.id '
                             'LEFT JOIN mitarbeiter on inventar_status.mitarbeiter_id = mitarbeiter.id').fetchall()
     conn.close()
+    print(current_user.name)
     return render_template('anzeigen.html', inventar=inventar)
 
 
@@ -108,5 +150,3 @@ def status_update():
 
     return render_template('status_update.html', inventar_infos=get_inventar_infos(id),
                            status_info=get_status_infos(id))
-
-
