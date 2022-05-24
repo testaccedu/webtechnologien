@@ -25,29 +25,29 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('registrieren') }}">Registrieren</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('erfassen') }}">Erfassen</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('anzeigen') }}">Anzeigen</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('status_update') }}">Status Update</a>
-                </li>
+
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('erfassen') }}">Erfassen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('anzeigen') }}">Anzeigen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('status_update') }}">Status Update</a>
+                    </li>
+                {% endif %}
             </ul>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 {% if current_user.is_authenticated %}
-                <h7>Hallo {{ current_user.vorname }}!    </h7>
+                    <span class="navbar-text">{{ current_user.vorname + " " + current_user.name}}</span>
                 {% endif %}
-                <a class="btn btn-primary" href="{{ url_for('logout') }}" role="button">
+
                     {% if current_user.is_authenticated %}
-                        Abmelden
+                        <a class="btn btn-primary" href="{{ url_for('logout') }}" role="button">Abmelden</a>
                     {% else %}
-                        Login
+                        <a class="btn btn-primary" href="{{ url_for('login') }}" role="button">Login</a>
                     {% endif %}
                 </a>
 

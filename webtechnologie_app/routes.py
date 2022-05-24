@@ -4,6 +4,7 @@ import sqlite3
 from flask import render_template, request, url_for, flash, redirect
 from flask_login import login_user,logout_user, login_required, current_user
 from webtechnologie_app.models import Mitarbeiter, Hallen
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -80,16 +81,16 @@ def login():
         nutzer = request.form.get('nutzer')
         formpasswort = request.form.get('passwort')
         vorname = str(nutzer).split(".")[0]
-        name = str(nutzer).split(".")[1]
+        name = str(nutzer).split(".")[1].lower()
         # remember = True if request.form.get('remember') else False
 
-        nutzer = Mitarbeiter.query.filter_by(name=name, vorname=vorname).first()
+        nutzer = Mitarbeiter.query.filter_by(func.lower(Mitarbeiter.name)==name, vorname=vorname).first()
         print(nutzer)
 
         # check if the user actually exists
         # take the user-supplied password, hash it, and compare it to the hashed password in the database
         if not nutzer or not check_password_hash(nutzer.passwort, formpasswort):
-            flash('Please check your login details and try again.')
+            flash('Login fehlerhaft!')
             return redirect(url_for('login'))  # if the user doesn't exist or password is wrong, reload the page
         login_user(nutzer, remember=1)
         return redirect(url_for('index'))
