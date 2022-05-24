@@ -1,47 +1,24 @@
-import sqlite3
+from webtechnologie_app.models import Mitarbeiter, Hallen,Inventar, Inventar_status, Inventar_typ
+from werkzeug.security import generate_password_hash, check_password_hash
+from webtechnologie_app.models import db
 
-connection = sqlite3.connect('database.db')
+db.create_all()
 
+typ = Inventar_typ(bezeichnung="Leiter", feld_1_bez="Art", feld_2_bez="Sprossen")
+db.session.add(typ)
+db.session.commit()
 
-with open('schema.sql') as f:
-    connection.executescript(f.read())
+inventar = Inventar(inventar_typ_id="1", feld_1="Anlegeleiter", feld_2="10 Sprossen")
+db.session.add(inventar)
+db.session.commit()
 
-cur = connection.cursor()
-
-
-cur.execute("INSERT INTO inventar_typ (bezeichnung, feld_1_bez, feld_2_bez) VALUES (?, ?, ?)",
-            ('Leiter', 'Art', 'Anzahl Sprossen')
-            )
-
-cur.execute("INSERT INTO inventar_typ (bezeichnung, feld_1_bez, feld_2_bez) VALUES (?, ?, ?)",
-            ('Hebebühne', 'Art', 'Arbeitshöhe (max)')
-            )
-
-cur.execute("INSERT INTO inventar (inventar_typ_id, feld_1, feld_2) VALUES (?, ?, ?)",
-            (1, 'Anlegeleiter', '12')
-            )
-
-cur.execute("INSERT INTO inventar (inventar_typ_id, feld_1, feld_2) VALUES (?, ?, ?)",
-            (2, 'Gelenkteleskop', '9,80 m')
-            )
-
-cur.execute("INSERT INTO inventar (inventar_typ_id, feld_1, feld_2) VALUES (?, ?, ?)",
-            (2, 'Scheren-Bühne', '10 m')
-            )
-
-cur.execute("INSERT INTO mitarbeiter (name, vorname, passwort) VALUES (?, ?, ?)",
-            ('Neurath', 'Tobias', 'xxxxx')
-            )
-
-cur.execute("INSERT INTO hallen (bezeichnung) VALUES ('Halle 1')")
-cur.execute("INSERT INTO hallen (bezeichnung) VALUES ('Halle 2')")
-cur.execute("INSERT INTO hallen (bezeichnung) VALUES ('Halle 3')")
-cur.execute("INSERT INTO hallen (bezeichnung) VALUES ('Halle 4')")
+neuer_benutzer = Mitarbeiter(vorname="Tobias", name="Neurath",
+                             passwort=generate_password_hash("123", method='sha256'))
+db.session.add(neuer_benutzer)
+db.session.commit()
 
 
-cur.execute("INSERT INTO inventar_status (inventar_id, standort_halle_id, standort_feld, standort_bemerkung, mitarbeiter_id) VALUES (?, ?, ?, ?, ?)",
-            (2, 2, 'EG F118', 'Unter Bühne', 1)
-            )
 
-connection.commit()
-connection.close()
+halle = Hallen(bezeichnung="Halle 1")
+db.session.add(halle)
+db.session.commit()

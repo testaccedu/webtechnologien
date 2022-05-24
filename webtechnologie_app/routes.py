@@ -2,8 +2,8 @@ from webtechnologie_app import app
 from webtechnologie_app import db
 import sqlite3
 from flask import render_template, request, url_for, flash, redirect
-from flask_login import login_user,logout_user, login_required, current_user
-from webtechnologie_app.models import Mitarbeiter, Hallen
+from flask_login import login_user, logout_user, login_required, current_user
+from webtechnologie_app.models import Mitarbeiter, Hallen, Inventar_status
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -80,8 +80,12 @@ def login():
     if request.method == 'POST':
         nutzer = request.form.get('nutzer')
         formpasswort = request.form.get('passwort')
-        vorname = str(nutzer).split(".")[0]
-        name = str(nutzer).split(".")[1]
+        vorname = ""
+        name = ""
+        if "." in nutzer:
+            vorname = str(nutzer).split(".")[0]
+            name = str(nutzer).split(".")[1]
+
         # remember = True if request.form.get('remember') else False
 
         nutzer = Mitarbeiter.query.filter_by(name=name, vorname=vorname).first()
@@ -90,7 +94,7 @@ def login():
         # check if the user actually exists
         # take the user-supplied password, hash it, and compare it to the hashed password in the database
         if not nutzer or not check_password_hash(nutzer.passwort, formpasswort):
-            flash('Login fehlerhaft!')
+            flash('Login fehlerhaft. Bitte Benutzername und Passwort prüfen!')
             return redirect(url_for('login'))  # if the user doesn't exist or password is wrong, reload the page
         login_user(nutzer, remember=1)
         return redirect(url_for('index'))
@@ -138,16 +142,11 @@ def status_update():
         feld = request.form['feld']
         bemerkung = request.form['bemerkung']
 
-        if not feld:
-            flash('Title is required!')
-        else:
-            conn = get_db_connection()
-            conn.execute(
-                "INSERT INTO inventar_status (inventar_id, standort_halle_id, standort_feld, standort_bemerkung, mitarbeiter_id) VALUES (?, ?, ?, ?, ?)",
-                (id, halle, ebene + feld, bemerkung, 1))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('index'))
+        status = Inventar_status(inventar_id=id, standort_halle_id=halle, standort_feld=feld, standort_bemerkung=bemerkung, mitarbeiter_id=current_user.id)
+        db.session.add(status)
+        db.session.commit()
+        print(status)
+        return redirect(url_for('index'))
 
     return render_template('status_update.html', inventar_infos=get_inventar_infos(id),
                            status_info=get_status_infos(id))
