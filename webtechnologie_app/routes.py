@@ -81,10 +81,10 @@ def login():
         nutzer = request.form.get('nutzer')
         formpasswort = request.form.get('passwort')
         vorname = str(nutzer).split(".")[0]
-        name = str(nutzer).split(".")[1].lower()
+        name = str(nutzer).split(".")[1]
         # remember = True if request.form.get('remember') else False
 
-        nutzer = Mitarbeiter.query.filter_by(func.lower(Mitarbeiter.name)==name, vorname=vorname).first()
+        nutzer = Mitarbeiter.query.filter_by(name=name, vorname=vorname).first()
         print(nutzer)
 
         # check if the user actually exists
