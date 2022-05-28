@@ -6,24 +6,53 @@
 
     <div class="accordion accordion-flush" id="accordionFlushExample">
 
-        {% for objekt in inventar %}
+        {% for typ in inventar_typ %}
 
             <div class="accordion-item">
-                <h2 class="accordion-header" id="flush-heading{{ objekt['id'] }}">
+                <h2 class="accordion-header" id="flush-heading{{ typ['bezeichnung'] }}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#flush-collapse{{ objekt['id'] }}" aria-expanded="false"
-                            aria-controls="flush-collapse{{ objekt['id'] }}">
-                        <h4>{{ objekt['bezeichnung'] }}</h4>
-                        <span class="badge bg-light text-dark">{{ objekt['feld_1'] }}</span>
-                        <span class="badge bg-light text-dark">{{ objekt['feld_2'] }}</span>
+                            data-bs-target="#flush-collapse{{ typ['id'] }}" aria-expanded="false"
+                            aria-controls="flush-collapse{{ typ['id'] }}">
+                        <h4>{{ typ['bezeichnung'] }}</h4>
+                        <span class="badge bg-light text-dark">{{ (typ['inventar'])|length }}</span>
                     </button>
                 </h2>
-                <div id="flush-collapse{{ objekt['id'] }}" class="accordion-collapse collapse"
-                     aria-labelledby="flush-heading{{ objekt['id'] }}"
+                <div id="flush-collapse{{ typ['id'] }}" class="accordion-collapse collapse"
+                     aria-labelledby="flush-heading{{ typ['id'] }}"
                      data-bs-parent="#accordionFlushExample">
-                    <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate
-                        the
-                        <code>.accordion-flush</code> class. This is the first item's accordion body.
+
+                    <div class="accordion-body">
+                        <div class="list-group">
+                            {% for inventar in typ.inventar %}
+
+                                <a href="status_update?id={{inventar.id}}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ typ['bezeichnung'] }} Nr. {{ inventar.id }}</h5>
+                                        <small class="text-muted">{% if inventar.status.first() %}
+                                            {{ inventar.status.first().erstellt.strftime('%d.%m.%y - %H:%M') }}
+                                        {% endif %} </small>
+                                    </div>
+                                    {% if typ.feld_1_bez %}
+                                        <p class="mb-1">{{ typ.feld_1_bez }}: {{ inventar.feld_1 }}</p>
+                                    {% endif %}
+                                    {% if typ.feld_2_bez %}
+                                        <p class="mb-1">{{ typ.feld_2_bez }}: {{ inventar.feld_2 }}</p>
+                                    {% endif %}
+                                    {% if typ.feld_3_bez %}
+                                        <p class="mb-1">{{ typ.feld_3_bez }}: {{ inventar.feld_3 }}</p>
+                                    {% endif %}
+                                    {% if typ.feld_4_bez %}
+                                        <p class="mb-1">{{ typ.feld_4_bez }}: {{ inventar.feld_4 }}</p>
+                                    {% endif %}
+
+                                    <small class="text-muted"><span class="badge bg-light text-dark">{{ mitarbeiter.query.get(inventar.status.first().mitarbeiter_id).vorname}} {{ mitarbeiter.query.get(inventar.status.first().mitarbeiter_id).name}}</span>  <span class="badge bg-light text-dark">{{ halle.query.get(inventar.status.first().standort_halle_id).bezeichnung}} / {{ inventar.status.first().standort_feld }} / {{ inventar.status.first().standort_bemerkung
+                                            }}</span></small>
+                                </a>
+
+
+                            {% endfor %}
+
+                        </div>
                     </div>
                 </div>
             </div>

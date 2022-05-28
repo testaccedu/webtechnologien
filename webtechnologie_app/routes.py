@@ -3,7 +3,7 @@ from webtechnologie_app import db
 import sqlite3
 from flask import render_template, request, url_for, flash, redirect
 from flask_login import login_user, logout_user, login_required, current_user
-from webtechnologie_app.models import Mitarbeiter, Hallen, Inventar_status
+from webtechnologie_app.models import Mitarbeiter, Hallen, Inventar_status, Inventar, Inventar_typ
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -112,7 +112,8 @@ def logout():
 @app.route('/anzeigen')
 @login_required
 def anzeigen():
-    conn = get_db_connection()
+
+    '''    conn = get_db_connection()
     inventar = conn.execute('SELECT '
                             'inventar_typ.feld_1_bez, inventar_typ.feld_2_bez,inventar_typ.feld_3_bez, inventar_typ.feld_4_bez, inventar_typ.bezeichnung,'
                             'inventar.feld_1, inventar.feld_2, inventar.feld_3, inventar.feld_4, inventar.id,'
@@ -124,15 +125,29 @@ def anzeigen():
                             'LEFT JOIN inventar_status on inventar_status.inventar_id = inventar.id '
                             'LEFT JOIN hallen on inventar_status.standort_halle_id = hallen.id '
                             'LEFT JOIN mitarbeiter on inventar_status.mitarbeiter_id = mitarbeiter.id').fetchall()
-    conn.close()
-    print(current_user.name)
-    return render_template('anzeigen.html', inventar=inventar)
+    conn.close()'''
+    inventar_typen = Inventar_typ.query.all()
+    inventar = Inventar.query.all()
+
+    test =  db.session.query(Mitarbeiter, Inventar_status).outerjoin(Inventar_status, Mitarbeiter.id==Inventar_status.mitarbeiter_id).all()
+    for obj in test:
+        print(obj)
+    print(Hallen.query.get(2))
+    for object in inventar:
+        print(object)
+        #print(Mitarbeiter.query.get(object.status.first().mitarbeiter_id).name)
+
+    return render_template('anzeigen.html', inventar=inventar, inventar_typ= inventar_typen, mitarbeiter=Mitarbeiter, halle=Hallen)
 
 
 @app.route('/status_update', methods=('GET', 'POST'))
 def status_update():
     if request.args.get('id'):
         id = request.args.get('id')
+        inventar12 = Inventar.query.get(id)
+        typ = Inventar_typ.query.get(inventar12.inventar_typ_id)
+        print("------------")
+        print(inventar12)
     else:
         id = 0
 
@@ -142,11 +157,11 @@ def status_update():
         feld = request.form['feld']
         bemerkung = request.form['bemerkung']
 
-        status = Inventar_status(inventar_id=id, standort_halle_id=halle, standort_feld=feld, standort_bemerkung=bemerkung, mitarbeiter_id=current_user.id)
+        status = Inventar_status(inventar_id=id, standort_halle_id=halle,standort_feld=ebene+" "+feld, standort_bemerkung=bemerkung, mitarbeiter_id=current_user.id)
         db.session.add(status)
         db.session.commit()
         print(status)
         return redirect(url_for('index'))
 
-    return render_template('status_update.html', inventar_infos=get_inventar_infos(id),
+    return render_template('status_update.html', inventar_infos=inventar12, typ=typ,
                            status_info=get_status_infos(id))

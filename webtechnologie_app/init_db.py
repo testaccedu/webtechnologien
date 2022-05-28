@@ -4,12 +4,15 @@ from webtechnologie_app.models import db
 
 db.create_all()
 
-typ = Inventar_typ(bezeichnung="Leiter", feld_1_bez="Art", feld_2_bez="Sprossen")
-db.session.add(typ)
+
+db.session.add(Inventar_typ(bezeichnung="Leiter", feld_1_bez="Art", feld_2_bez="Sprossen"))
+db.session.add(Inventar_typ(bezeichnung="Hebebühne", feld_1_bez="Bezeichnung / Firma", feld_2_bez="Art", feld_3_bez="Arbeitshöhe"))
 db.session.commit()
 
-inventar = Inventar(inventar_typ_id="1", feld_1="Anlegeleiter", feld_2="10 Sprossen")
-db.session.add(inventar)
+
+db.session.add(Inventar(inventar_typ_id="1", feld_1="Anlegeleiter", feld_2="10 Sprossen"))
+db.session.add(Inventar(inventar_typ_id="1", feld_1="Stehleiter", feld_2="8 Sprossen"))
+db.session.add(Inventar(inventar_typ_id="2", feld_1="Nifty", feld_2="Gelenkteleskop", feld_3="14,80 m"))
 db.session.commit()
 
 neuer_benutzer = Mitarbeiter(vorname="Tobias", name="Neurath",

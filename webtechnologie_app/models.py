@@ -9,6 +9,7 @@ class Mitarbeiter(UserMixin, db.Model):
     passwort = db.Column(db.String(255))
     previligiert = db.Column(db.Integer())
     erstellt = db.Column(db.DateTime, default=datetime.utcnow)
+    status_updates = db.relationship("Inventar_status", backref='mitarbeier', lazy=True)
 
 class Inventar_typ(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,7 +18,7 @@ class Inventar_typ(db.Model):
     feld_2_bez = db.Column(db.String(255))
     feld_3_bez = db.Column(db.String(255))
     feld_4_bez = db.Column(db.String(255))
-    inventar_typen = db.relationship("Inventar", backref='inventar_typ', lazy=True)
+    inventar = db.relationship("Inventar", backref='inventar_typ', lazy=True)
 
 class Inventar(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,6 +27,7 @@ class Inventar(db.Model):
     feld_2 = db.Column(db.String(255))
     feld_3 = db.Column(db.String(255))
     feld_4 = db.Column(db.String(255))
+    status = db.relationship("Inventar_status", backref='Inventar', order_by="desc(Inventar_status.erstellt)", lazy='dynamic')
 
 
 class Hallen(db.Model):
@@ -41,4 +43,5 @@ class Inventar_status(db.Model):
     standort_feld = db.Column(db.String(255))
     standort_bemerkung = db.Column(db.String(255))
     mitarbeiter_id = db.Column(db.Integer, db.ForeignKey('mitarbeiter.id'))
-    erstellt = db.Column(db.DateTime, default=datetime.utcnow)
+    erstellt = db.Column(db.DateTime, default=datetime.now)
+    mitarbeiter = db.relationship("Mitarbeiter", backref='Inventar_status', lazy=True)
